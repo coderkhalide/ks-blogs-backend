@@ -9,13 +9,13 @@ router.post('/', (req, res) => {
 
     Users.findOne({ email: req.body.email })
         .then(user => {
-            if(!user) return res.status(400).send('No such user found!')
-            if(user.password !== req.body.password) return res.status(400).send('Invalid password!')
+            if(!user) return res.status(400).send({ message: 'No such user found!'})
+            if(user.password !== req.body.password) return res.status(400).send({ message: 'Invalid password!'})
 
             const token = user.generateAuthToken()
             res.send({token})
         })
-        .catch(_ => res.status(500).send('Something went wrong!'))
+        .catch(_ => res.status(500).send({ message: 'Something went wrong!'}))
 })
 
 module.exports = router
