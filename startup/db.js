@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 
 module.exports = function(){
-    console.log(process.env.CONNECTION_STRING, process.env.jwtToken)
     mongoose.connect(process.env.CONNECTION_STRING , 
         {
             useNewUrlParser: true,
