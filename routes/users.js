@@ -28,8 +28,8 @@ router.post('/', (req, res) => {
             res.status(200).send({id: user._id, name: response.name, email: response.email, avatar: response.avatar, token: token})
         })
         .catch(error => {
-            if(error.code === 11000 || error.code === 12582 || error.code === 11001) res.status(400).send('This User Already Exist!')
-            else res.status(500).send('Something went wrong :(')
+            if(error.code === 11000 || error.code === 12582 || error.code === 11001) res.status(400).send({message: 'This User Already Exist!'})
+            else res.status(500).send({message: 'Something went wrong :('})
         })
 })
 
@@ -38,8 +38,8 @@ router.get('/:id', (req, res) => {
     if(error) return res.status(400).send(error.message)
     
     Users.findById(req.params.id).select('name email avatar')
-        .then(user => user ? res.status(200).send(user) : res.status(400).send('Invalid User ID :('))
-        .catch(_ => res.status(400).send('Invalid User ID :('))
+        .then(user => user ? res.status(200).send(user) : res.status(400).send({message: 'Invalid User ID :('}))
+        .catch(_ => res.status(400).send({message: 'Invalid User ID :('}))
 })
 
 router.put('/:id', auth, (req, res) => {
@@ -53,7 +53,7 @@ router.put('/:id', auth, (req, res) => {
         name: req.body.name
     } }, { new: true })
         .then(user => res.send({id: user._id, name: user.name, email: user.email, avatar: user.avatar}))
-        .catch(_ => res.status(400).send("The id you given is wrong"))
+        .catch(_ => res.status(400).send({message: "The id you given is wrong"}))
 })
 
 router.delete('/:id', auth, (req, res) => {
@@ -63,7 +63,7 @@ router.delete('/:id', auth, (req, res) => {
     if(req.user.role === 'admin'){
         Users.findByIdAndRemove(req.params.id)
             .then(response => res.status(200).send({id: response._id, name: response.name, email: response.email, avatar: response.avatar}))
-            .catch(_ => res.status(400).send("Wrong Id Given!"))
+            .catch(_ => res.status(400).send({message: "Wrong Id Given!"}))
     }else if(req.user.role === 'user'){
         Users.findById(req.params.id)
             .then(user => {
@@ -72,14 +72,14 @@ router.delete('/:id', auth, (req, res) => {
                 }else if(user._id == req.user._id){
                     Users.findByIdAndRemove(req.params.id)
                         .then(response => res.status(200).send({id: response._id, name: response.name, email: response.email, avatar: response.avatar}))
-                        .catch(_ => res.status(500).send("something went wrong"))
+                        .catch(_ => res.status(500).send({message: "something went wrong"}))
                 }else{
-                    res.status(401).send('Acccess denied!')
+                    res.status(401).send({message: 'Acccess denied!'})
                 }
             })
-            .catch(_ => res.status(400).send("Wrong id given!"))
+            .catch(_ => res.status(400).send({message: "Wrong id given!"}))
     }else{
-        res.status(401).send('Acccess denied!')
+        res.status(401).send({message: 'Acccess denied!'})
     }
 })
 
