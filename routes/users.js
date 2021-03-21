@@ -11,7 +11,7 @@ router.get('/', function (req, res){
 
 router.post('/', (req, res) => {
     const error = validateUser(req.body)
-    if(error) return res.status(400).send(error.message)
+    if(error) return res.status(400).send({message: error.message})
 
     let grav_url = "https://www.gravatar.com/avatar/" + md5(req.body.email)
 
@@ -35,7 +35,7 @@ router.post('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     const error = validateObjectId(req.params)
-    if(error) return res.status(400).send(error.message)
+    if(error) return res.status(400).send({message: error.message})
     
     Users.findById(req.params.id).select('name email avatar')
         .then(user => user ? res.status(200).send(user) : res.status(400).send({message: 'Invalid User ID :('}))
@@ -44,10 +44,10 @@ router.get('/:id', (req, res) => {
 
 router.put('/:id', auth, (req, res) => {
     const error = validateObjectId(req.params)
-    if(error) return res.status(400).send(error.message)
+    if(error) return res.status(400).send({message: error.message})
 
     const bodyError = validateUser(req.body)
-    if(bodyError) return res.status(400).send(bodyError.message)
+    if(bodyError) return res.status(400).send({message: bodyError.message})
 
     Users.findByIdAndUpdate(req.params.id, { $set: {
         name: req.body.name
@@ -58,7 +58,7 @@ router.put('/:id', auth, (req, res) => {
 
 router.delete('/:id', auth, (req, res) => {
     const error = validateObjectId(req.params)
-    if(error) return res.status(400).send(error.message)
+    if(error) return res.status(400).send({message: error.message})
 
     if(req.user.role === 'admin'){
         Users.findByIdAndRemove(req.params.id)

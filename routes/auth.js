@@ -5,7 +5,7 @@ const {Users} = require('../models/user')
 
 router.post('/', (req, res) => {
     const error = validateAuthBody(req.body)
-    if(error) return res.status(400).send(error.message)
+    if(error) return res.status(400).send({message: error.message})
 
     Users.findOne({ email: req.body.email })
         .then(user => {
@@ -13,7 +13,13 @@ router.post('/', (req, res) => {
             if(user.password !== req.body.password) return res.status(400).send({ message: 'Invalid password!'})
 
             const token = user.generateAuthToken()
-            res.send({token})
+            res.send({
+                id: user._id,
+                name: user.name,
+                email: user.email, 
+                avatar: user.avatar,
+                token
+            })
         })
         .catch(_ => res.status(500).send({ message: 'Something went wrong!'}))
 })

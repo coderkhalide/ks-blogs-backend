@@ -9,6 +9,6 @@ module.exports = function(app){
     app.use(express.urlencoded({ extended: true }))
     app.use('/blogs', blogs)
     app.use('/users', users)
-    app.use('/authtoken', auth)
+    app.use('/auth', auth)
     app.use(error)
 }

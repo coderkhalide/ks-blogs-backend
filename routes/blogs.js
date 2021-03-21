@@ -11,7 +11,7 @@ router.get('/', function (req, res){
 
 router.post('/', auth, (req, res) => {
     const error = validateBlog(req.body)
-    if(error) return res.status(400).send(error.message)
+    if(error) return res.status(400).send({message: error.message})
     let blog = new Blogs({
         title: req.body.title,
         categorys: req.body.categorys,
@@ -20,25 +20,26 @@ router.post('/', auth, (req, res) => {
         blocks: req.body.blocks,
     })
     blog.save()
+        .then(response => response.populate('user', 'name email avatar').execPopulate())
         .then(response => res.status(200).send(response))
-        .catch(_ => res.status(500).send("Something went wrong"))
+        .catch(_ => res.status(500).send({message: "Something went wrong"}))
 })
 
 router.get('/:id', (req, res) => {
     const error = validateObjectId(req.params)
-    if(error) return res.status(400).send(error.message)
+    if(error) return res.status(400).send({message: error.message})
 
     Blogs.findById(req.params.id).populate('user', 'name email avatar')
         .then(response => res.status(200).send(response))
-        .catch(_ => res.status(400).send("Wrong Id Given!"))
+        .catch(_ => res.status(400).send({message: "Wrong Id Given!"}))
 })
 
 router.put('/:id', auth, (req, res) => {
     const error = validateObjectId(req.params)
-    if(error) return res.status(400).send(error.message)
+    if(error) return res.status(400).send({message: error.message})
 
     const bodyError = validateBlog(req.body)
-    if(bodyError) return res.status(400).send(bodyError.message)
+    if(bodyError) return res.status(400).send({message: bodyError.message})
 
     Blogs.findByIdAndUpdate(req.params.id, { $set: {
         title: req.body.title,
@@ -48,7 +49,7 @@ router.put('/:id', auth, (req, res) => {
         blocks: req.body.blocks
     } }, { new: true })
         .then(gen => res.send(gen))
-        .catch(_ => res.status(400).send("The id you given is wrong"))
+        .catch(_ => res.status(400).send({ message: "The id you given is wrong"}))
 })
 
 router.delete('/:id', auth, (req, res) => {
@@ -57,7 +58,7 @@ router.delete('/:id', auth, (req, res) => {
 
     Blogs.findByIdAndRemove(req.params.id)
         .then(response => res.status(200).send(response))
-        .catch(_ => res.status(400).send("Wrong Id Given!"))
+        .catch(_ => res.status(400).send({message: "Wrong Id Given!"}))
 })
 
 module.exports = router
